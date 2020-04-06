@@ -79,6 +79,9 @@ class wordclock:
                 # Check, if plugin is valid (if the plugin.py is provided)
                 if not os.path.isfile(os.path.join(plugin_dir, plugin, 'plugin.py')):
                     raise
+                print('hello from ' + plugin + ' import')
+                print('hello from ' + plugin + ' import')
+
                 self.plugins.append(import_module('wordclock_plugins.' + plugin + '.plugin').plugin(self.config))
                 # Search for default plugin to display the time
                 if plugin == 'time_default':
@@ -88,6 +91,8 @@ class wordclock:
                 index += 1
             except:
                 print(('Failed to import plugin ' + plugin + '!'))
+
+        exit()
 
         # Create object to interact with the wordclock using the interface of your choice
         self.plugin_index = 0

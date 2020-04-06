@@ -46,7 +46,7 @@ class plugin:
                 self.typewriter_speed) + '.'))
 
 	try:
-            self.purist = config.getboolean('plugin_time_default', 'purist')
+	    self.purist = config.getboolean('plugin_time_default', 'purist')
         except:
             print('  No purist-flag set for default plugin within the config-file. Prefix will be displayed.')
             self.purist = False
@@ -72,7 +72,7 @@ class plugin:
             self.sleep_brightness = 5
             print(('  No sleep brightness set within the config-file. Defaulting to ' + str(
                 self.sleep_brightness) + '.'))
-        
+
         # if left/right button is pressed during sleep cycle, the current sleep cycle is skipped for the rest of the night
         # to allow manual override
         self.skip_sleep = False
@@ -128,10 +128,10 @@ class plugin:
             nowtime = datetime.time(now.hour,now.minute,0)
             if not (self.sleep_begin == self.sleep_end):
                 if ((self.sleep_begin <= nowtime) and ((nowtime <= self.sleep_end) or (nowtime <= datetime.time(23,59,59))) or (datetime.time(0,0,0) <= nowtime <= self.sleep_end)):  # skip if color/brightness change has been done during the current sleep cycle
-                    if not self.skip_sleep: 
+                    if not self.skip_sleep:
                         self.brightness_mode_pos = self.sleep_brightness
                         self.sleep_switch = True  # brightness has been changed
-                    self.is_sleep = True 
+                    self.is_sleep = True
                 else:
                     self.brightness_mode_pos = self.wake_brightness
                     self.sleep_switch = True  # brightness has been changed
@@ -150,7 +150,7 @@ class plugin:
             # Switch display color, if button_left is pressed
             if event == wci.EVENT_BUTTON_LEFT:
                 if self.is_sleep:    # if button is pressed during sleep cycle, allow override until next sleep cycle
-                    self.skip_sleep = True 
+                    self.skip_sleep = True
                 self.color_mode_pos += 1
                 if self.color_mode_pos == len(self.color_modes):
                     self.color_mode_pos = 0

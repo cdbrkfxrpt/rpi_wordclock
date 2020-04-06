@@ -258,7 +258,7 @@ class wordclock_display:
             for y in range(text_height):
                 for x in range(render_range):
                     self.wcl.setColorBy2DCoordinates(self.strip, x, y,
-                                                     fg_color if text_as_pixel.pixels[y * text_width + x] else bg_color)
+                                                     fg_color if text_as_pixel.pixels[int(y * text_width + x)] else bg_color)
 
             # Show first frame for 0.5 seconds
             self.show()
@@ -266,11 +266,11 @@ class wordclock_display:
                 return
 
             # Shift text from left to right to show all.
-            for cur_offset in range(text_width - self.wcl.WCA_WIDTH + 1):
+            for cur_offset in range(int(text_width - self.wcl.WCA_WIDTH + 1)):
                 for y in range(text_height):
                     for x in range(self.wcl.WCA_WIDTH):
                         self.wcl.setColorBy2DCoordinates(self.strip, x, y, fg_color if text_as_pixel.pixels[
-                            y * text_width + x + cur_offset] else bg_color)
+                            int(y * text_width + x + cur_offset)] else bg_color)
                 self.show()
                 if self.wci.waitForExit(1.0 / fps):
                     return
