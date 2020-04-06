@@ -20,81 +20,131 @@ class wordclock:
         Initializations, executed at every startup of the wordclock
         """
         # Get path of the directory where this file is stored
-        self.basePath = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+        self.basePath = os.path.dirname(
+            os.path.abspath(inspect.getfile(inspect.currentframe()))
+        )
 
         # Get wordclock configuration from config-file
-        pathToConfigFile = self.basePath + '/wordclock_config/wordclock_config.cfg'
+        pathToConfigFile = (
+            self.basePath + "/wordclock_config/wordclock_config.cfg"
+        )
         if not os.path.exists(pathToConfigFile):
-            pathToConfigFileExample = self.basePath + '/wordclock_config/wordclock_config.example.cfg'
+            pathToConfigFileExample = (
+                self.basePath
+                + "/wordclock_config/wordclock_config.example.cfg"
+            )
             if not os.path.exists(pathToConfigFileExample):
-                print('Error: No config-file available!')
-                print(('  Expected ' + pathToConfigFile + ' or ' + pathToConfigFileExample))
-                raise Exception('Missing config-file')
+                print("Error: No config-file available!")
+                print(
+                    (
+                        "  Expected "
+                        + pathToConfigFile
+                        + " or "
+                        + pathToConfigFileExample
+                    )
+                )
+                raise Exception("Missing config-file")
             copyfile(pathToConfigFileExample, pathToConfigFile)
-            print('Warning: No config-file specified! Was created from example-config!')
-        print(('Parsing ' + pathToConfigFile))
+            print(
+                "Warning: no config file specified, copied from example-config"
+            )
+        print(("Parsing " + pathToConfigFile))
         self.config = configparser.ConfigParser()
         self.config.read(pathToConfigFile)
 
         # Add to the loaded configuration the current base path to provide it
         # to other classes/plugins for further usage
-        self.config.set('wordclock', 'base_path', self.basePath)
+        self.config.set("wordclock", "base_path", self.basePath)
 
-        self.developer_mode_active = self.config.getboolean('wordclock', 'developer_mode')
+        self.developer_mode_active = self.config.getboolean(
+            "wordclock", "developer_mode"
+        )
 
-        # Create object to interact with the wordclock using the interface of your choice
+        # Create object to interact with the wordclock using the interface of
+        # your choice
         self.wci = wci.event_handler()
 
         if not self.developer_mode_active:
             import wordclock_interfaces.gpio_interface as wcigpio
+
             self.gpio = wcigpio.gpio_interface(self.config, self.wci)
 
         # Create object to display any content on the wordclock display
-        # Its implementation depends on your (individual) wordclock layout/wiring
+        # Its implementation depends on your (individual) wordclock
+        # layout/wiring
         self.wcd = wcd.wordclock_display(self.config, self.wci)
 
         # Define path to general icons (not plugin-specific)
-        self.pathToGeneralIcons = os.path.join(self.basePath, 'icons', self.wcd.dispRes())
+        self.pathToGeneralIcons = os.path.join(
+            self.basePath, "icons", self.wcd.dispRes()
+        )
 
         # Assemble path to plugin directory
-        plugin_dir = os.path.join(self.basePath, 'wordclock_plugins')
+        plugin_dir = os.path.join(self.basePath, "wordclock_plugins")
 
         # Assemble list of all available plugins
-        plugins = (plugin for plugin in os.listdir(plugin_dir) if os.path.isdir(os.path.join(plugin_dir, plugin)))
+        plugins = (
+            plugin
+            for plugin in os.listdir(plugin_dir)
+            if os.path.isdir(os.path.join(plugin_dir, plugin))
+        )
 
         # Import plugins, which can be operated by the wordclock:
         index = 0  # A helper variable (only incremented on successful import)
         self.plugins = []
         for plugin in plugins:
-            # Check the config-file, whether to activate or deactivate the plugin
+            # Check the config-file, whether to activate or deactivate the
+            # plugin
             try:
-                if not self.config.getboolean('plugin_' + plugin, 'activate'):
-                    print(('Skipping plugin ' + plugin + ' since it is set to activate=false in the config-file.'))
+                if not self.config.getboolean("plugin_" + plugin, "activate"):
+                    print(
+                        (
+                            "Skipping plugin "
+                            + plugin
+                            + " since it is set to activate=false"
+                            + " in the config-file."
+                        )
+                    )
                     continue
             except:
-                print(('  INFO: No activate-flag set for plugin ' + plugin + ' within the config-file. Will be imported.'))
+                print(
+                    (
+                        "  INFO: No activate-flag set for plugin "
+                        + plugin
+                        + " within the config-file. Will be imported."
+                    )
+                )
 
             try:
                 # Perform a minimal (!) validity check
                 # Check, if plugin is valid (if the plugin.py is provided)
-                if not os.path.isfile(os.path.join(plugin_dir, plugin, 'plugin.py')):
+                if not os.path.isfile(
+                    os.path.join(plugin_dir, plugin, "plugin.py")
+                ):
                     raise
-                print('hello from ' + plugin + ' import')
-                print('hello from ' + plugin + ' import')
 
-                self.plugins.append(import_module('wordclock_plugins.' + plugin + '.plugin').plugin(self.config))
+                self.plugins.append(
+                    import_module(
+                        "wordclock_plugins." + plugin + ".plugin"
+                    ).plugin(self.config)
+                )
+
                 # Search for default plugin to display the time
-                if plugin == 'time_default':
+                if plugin == "time_default":
                     print(('  Selected "' + plugin + '" as default plugin'))
                     self.default_plugin = index
-                print(('Imported plugin ' + str(index) + ': "' + plugin + '".'))
+
+                print(
+                    ("Imported plugin " + str(index) + ': "' + plugin + '".')
+                )
                 index += 1
             except:
-                print(('Failed to import plugin ' + plugin + '!'))
+                print(("Failed to import plugin " + plugin + "!"))
 
         exit()
 
-        # Create object to interact with the wordclock using the interface of your choice
+        # Create object to interact with the wordclock using the interface of
+        # your choice
         self.plugin_index = 0
         self.wciweb = wciweb.web_interface(self)
 
@@ -102,11 +152,13 @@ class wordclock:
         """
         Startup behavior
         """
-        if self.config.getboolean('wordclock', 'show_startup_message'):
-            startup_message = self.config.get('wordclock', 'startup_message')
+        if self.config.getboolean("wordclock", "show_startup_message"):
+            startup_message = self.config.get("wordclock", "startup_message")
             if startup_message == "ShowIP":
-                interface = self.config.get('plugin_ip_address', 'interface')
-                self.wcd.showText("IP: " + netifaces.ifaddresses(interface)[2][0]['addr'])
+                interface = self.config.get("plugin_ip_address", "interface")
+                self.wcd.showText(
+                    "IP: " + netifaces.ifaddresses(interface)[2][0]["addr"]
+                )
             else:
                 self.wcd.showText(startup_message)
 
@@ -116,17 +168,33 @@ class wordclock:
         """
 
         try:
-            print(('Running plugin ' + self.plugins[self.plugin_index].name + '.'))
+            print(
+                (
+                    "Running plugin "
+                    + self.plugins[self.plugin_index].name
+                    + "."
+                )
+            )
             self.plugins[self.plugin_index].run(self.wcd, self.wci)
         except:
-            print(('ERROR: In plugin ' + self.plugins[self.plugin_index].name + '.'))
-            self.wcd.setImage(os.path.join(self.pathToGeneralIcons, 'error.png'))
+            print(
+                (
+                    "ERROR: In plugin "
+                    + self.plugins[self.plugin_index].name
+                    + "."
+                )
+            )
+            self.wcd.setImage(
+                os.path.join(self.pathToGeneralIcons, "error.png")
+            )
 
         # Cleanup display after exiting plugin
         self.wcd.resetDisplay()
 
     def runNext(self, plugin_index=None):
-        self.plugin_index = plugin_index if plugin_index is not None else self.default_plugin
+        self.plugin_index = (
+            plugin_index if plugin_index is not None else self.default_plugin
+        )
         self.wci.setEvent(self.wci.EVENT_NEXT_PLUGIN_REQUESTED)
 
     def run(self):
@@ -141,13 +209,18 @@ class wordclock:
         while True:
             self.runPlugin()
 
-            # If no plugin was requested yet, loop through menu to select next plugin
+            # If no plugin was requested yet, loop through menu to select next
+            # plugin
             if self.wci.nextAction == wci.next_action.RUN_DEFAULT_PLUGIN:
                 self.plugin_index = self.default_plugin
             elif self.wci.nextAction == wci.next_action.GOTO_MENU:
                 while True:
-                    # The showIcon-command expects to have a plugin logo available
-                    self.wcd.showIcon(plugin=self.plugins[self.plugin_index].name, iconName='logo')
+                    # The showIcon-command expects to have a plugin logo
+                    # available
+                    self.wcd.showIcon(
+                        plugin=self.plugins[self.plugin_index].name,
+                        iconName="logo",
+                    )
                     time.sleep(self.wci.lock_time)
                     evt = self.wci.waitForEvent()
                     if evt == self.wci.EVENT_BUTTON_LEFT:
@@ -158,7 +231,10 @@ class wordclock:
                     if evt == self.wci.EVENT_BUTTON_RETURN:
                         time.sleep(self.wci.lock_time)
                         break
-                    if evt == self.wci.EVENT_EXIT_PLUGIN or evt == self.wci.EVENT_NEXT_PLUGIN_REQUESTED:
+                    if (
+                        evt == self.wci.EVENT_EXIT_PLUGIN
+                        or evt == self.wci.EVENT_NEXT_PLUGIN_REQUESTED
+                    ):
                         break
                     if evt == self.wci.EVENT_BUTTON_RIGHT:
                         self.plugin_index += 1
@@ -167,7 +243,7 @@ class wordclock:
                         time.sleep(self.wci.lock_time)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     word_clock = wordclock()
     word_clock.startup()
     word_clock.run()
