@@ -28,10 +28,10 @@ class wiring:
         wiring_layout = config.get('wordclock_display', 'wiring_layout')
 
         print('Wiring configuration')
-        print('  WCA_WIDTH: ' + str(self.WCA_WIDTH))
-        print('  WCA_HEIGHT: ' + str(self.WCA_HEIGHT))
-        print('  Num of LEDs: ' + str(self.LED_COUNT))
-        print('  Wiring layout: ' + str(wiring_layout))
+        print(('  WCA_WIDTH: ' + str(self.WCA_WIDTH)))
+        print(('  WCA_HEIGHT: ' + str(self.WCA_HEIGHT)))
+        print(('  Num of LEDs: ' + str(self.LED_COUNT)))
+        print(('  Wiring layout: ' + str(wiring_layout)))
 
         if config.getboolean('wordclock', 'developer_mode'):
             self.wcl = gtk_wiring(self.WCA_WIDTH, self.WCA_HEIGHT)

@@ -1,7 +1,7 @@
 import datetime
 import os
 import time
-import time_seconds
+from . import time_seconds
 import wordclock_tools.wordclock_colors as wcc
 
 
