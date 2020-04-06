@@ -1,10 +1,9 @@
 # coding: utf8
 
-import gtk
-import gobject
+from gi.repository import Gtk as gtk
+from gi.repository import GObject as gobject
+from gi.repository import Pango as pango
 import threading
-from gtk._gtk import FILL
-import pango
 import os
 from wordclock_interfaces import event_handler as weh
 
@@ -47,7 +46,7 @@ class GTKstrip(threading.Thread):
             self.labels.append(label)
             self.colors.append(Color(0, 0, 0))
 
-            table.attach(label, x, x + 1, y, y + 1, FILL, FILL)
+            table.attach(label, x, x + 1, y, y + 1, gtk.FILL, gtk.FILL)
 
             x += 1
             if x == 11:
